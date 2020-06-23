@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using NAudio.Wave;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -124,6 +125,12 @@ namespace P4G_PC_Music_Converter
                 string outputTxthPath = outputRawInfo.FullName.Substring(0, outputRawInfo.FullName.Length - outputRawInfo.Extension.Length) + ".txth";
                 File.WriteAllText(outputTxthPath, outputInfoBuilder.ToString());
             }
+
+            // Strip the first 0x4E bytes (RIFF header)
+            byte[] waveData = File.ReadAllBytes(OutputRawPath.Text);
+            byte[] strippedWaveData = new byte[waveData.Length - 0x4E];
+            Array.Copy(waveData, 0x4E, strippedWaveData, 0, waveData.Length - 0x4E);
+            File.WriteAllBytes(OutputRawPath.Text, strippedWaveData);
         }
 
         private void BrowseInputFileButton_Click(object sender, RoutedEventArgs e)
