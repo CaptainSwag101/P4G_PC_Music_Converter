@@ -121,9 +121,7 @@ namespace P4G_PC_Music_Converter
                 OutputFileInfo.Text = outputInfoBuilder.ToString();
 
                 // Setup an output TXTH file in the same location as the output RAW file
-                FileInfo outputRawInfo = new FileInfo(OutputRawPath.Text);
-                string outputTxthPath = outputRawInfo.FullName.Substring(0, outputRawInfo.FullName.Length - outputRawInfo.Extension.Length) + ".txth";
-                File.WriteAllText(outputTxthPath, outputInfoBuilder.ToString());
+                File.WriteAllText(OutputRawPath.Text + ".txth", outputInfoBuilder.ToString());
             }
 
             // Strip the first 0x4E bytes (RIFF header)
