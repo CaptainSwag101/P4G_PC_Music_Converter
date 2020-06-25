@@ -80,8 +80,12 @@ namespace P4G_PC_Music_Converter
             }
 
             // Read the input file and determine/verify its info (sample count, etc.)
+            using MemoryStream dataSegment = new MemoryStream();
             using (WaveFileReader waveReader = new WaveFileReader(OutputRawPath.Text))
             {
+                // Store the data segment (what ends up in the final RAW file) in a MemoryStream temporarily
+                waveReader.CopyTo(dataSegment);
+
                 // Create a StringBuilder to output the info about this file to our TextBlock
                 StringBuilder outputInfoBuilder = new StringBuilder();
 
@@ -98,17 +102,65 @@ namespace P4G_PC_Music_Converter
                 outputInfoBuilder.Append($"sample_rate = {waveReader.WaveFormat.SampleRate}\n");
                 outputInfoBuilder.Append($"interleave = {waveReader.WaveFormat.BlockAlign}\n");
 
+                // Verify and adjust the loop points if needed, to conform to block sample alignment
                 if (LoopEnable.IsChecked.Value)
                 {
+                    int samplesPerBlock = waveReader.WaveFormat.BlockAlign - (6 * waveReader.WaveFormat.Channels);
+
                     int loopStart = int.Parse(LoopStart.Text);
-                    if (loopStart > sampleCount)
+                    //loopStart = (loopStart % samplesPerBlock) != 0 ? (loopStart + samplesPerBlock - (loopStart % samplesPerBlock)) : loopStart;
+                    if (loopStart % samplesPerBlock != 0)
+                    {
+                        switch (MessageBox.Show($"The provided loop start point is not aligned to {samplesPerBlock} samples per block, would you like to adjust the loop point?",
+                            string.Empty, MessageBoxButton.YesNoCancel))
+                        {
+                            case MessageBoxResult.Yes:
+                                loopStart += samplesPerBlock - (loopStart % samplesPerBlock);
+                                if (loopStart > sampleCount)
+                                    loopStart -= samplesPerBlock;
+                                if (loopStart < 0)
+                                    loopStart = int.Parse(LoopStart.Text);  // If all else fails just use what we're told
+                                break;
+
+                            case MessageBoxResult.No:
+                                break;
+
+                            case MessageBoxResult.Cancel:
+                                return;
+                        }
+                    }
+
+                    if (loopStart > sampleCount || loopStart < 0)
                     {
                         MessageBox.Show("The loop start point is out of bounds.");
                         return;
                     }
 
+
                     int loopEnd = int.Parse(LoopEnd.Text);
-                    if (loopEnd > sampleCount)
+                    //loopEnd = (loopEnd % samplesPerBlock) != 0 ? (loopEnd + samplesPerBlock - (loopEnd % samplesPerBlock)) : loopEnd;
+                    if (loopEnd % samplesPerBlock != 0)
+                    {
+                        switch (MessageBox.Show($"The provided loop end point is not aligned to {samplesPerBlock} samples per block, would you like to adjust the loop point?",
+                            string.Empty, MessageBoxButton.YesNoCancel))
+                        {
+                            case MessageBoxResult.Yes:
+                                loopEnd += samplesPerBlock - (loopEnd % samplesPerBlock);
+                                if (loopEnd > sampleCount)
+                                    loopEnd -= samplesPerBlock;
+                                if (loopEnd < 0)
+                                    loopEnd = int.Parse(LoopEnd.Text);  // If all else fails just use what we're told
+                                break;
+
+                            case MessageBoxResult.No:
+                                break;
+
+                            case MessageBoxResult.Cancel:
+                                return;
+                        }
+                    }
+
+                    if (loopEnd > sampleCount || loopEnd < 0)
                     {
                         MessageBox.Show("The loop end point is out of bounds.");
                         return;
@@ -124,11 +176,8 @@ namespace P4G_PC_Music_Converter
                 File.WriteAllText(OutputRawPath.Text + ".txth", outputInfoBuilder.ToString());
             }
 
-            // Strip the first 0x4E bytes (RIFF header)
-            byte[] waveData = File.ReadAllBytes(OutputRawPath.Text);
-            byte[] strippedWaveData = new byte[waveData.Length - 0x4E];
-            Array.Copy(waveData, 0x4E, strippedWaveData, 0, waveData.Length - 0x4E);
-            File.WriteAllBytes(OutputRawPath.Text, strippedWaveData);
+            // Save only the data segment to our final RAW file
+            File.WriteAllBytes(OutputRawPath.Text, dataSegment.ToArray());
         }
 
         private void BrowseInputFileButton_Click(object sender, RoutedEventArgs e)

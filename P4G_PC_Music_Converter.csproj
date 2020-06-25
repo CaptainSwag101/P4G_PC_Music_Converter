@@ -4,6 +4,14 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
+    <Product>P4G PC Music Converter</Product>
+    <Copyright>2020  James Pelster</Copyright>
+    <RepositoryUrl>https://github.com/jpmac26/P4G_PC_Music_Converter</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <Authors>James Pelster</Authors>
+    <Company />
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
