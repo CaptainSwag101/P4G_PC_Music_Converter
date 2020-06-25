@@ -80,11 +80,12 @@ namespace P4G_PC_Music_Converter
             }
 
             // Read the input file and determine/verify its info (sample count, etc.)
-            using MemoryStream dataSegment = new MemoryStream();
+            byte[] dataSegment;
             using (WaveFileReader waveReader = new WaveFileReader(OutputRawPath.Text))
             {
-                // Store the data segment (what ends up in the final RAW file) in a MemoryStream temporarily
-                waveReader.CopyTo(dataSegment);
+                // Store the data segment (what ends up in the final RAW file) in a byte array temporarily
+                dataSegment = new byte[waveReader.Length];
+                waveReader.Read(dataSegment, 0, (int)waveReader.Length);
 
                 // Create a StringBuilder to output the info about this file to our TextBlock
                 StringBuilder outputInfoBuilder = new StringBuilder();
@@ -177,7 +178,7 @@ namespace P4G_PC_Music_Converter
             }
 
             // Save only the data segment to our final RAW file
-            File.WriteAllBytes(OutputRawPath.Text, dataSegment.ToArray());
+            File.WriteAllBytes(OutputRawPath.Text, dataSegment);
         }
 
         private void BrowseInputFileButton_Click(object sender, RoutedEventArgs e)
