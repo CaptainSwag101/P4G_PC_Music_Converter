@@ -167,6 +167,12 @@ namespace P4G_PC_Music_Converter
                         return;
                     }
 
+                    if (loopStart >= loopEnd)
+                    {
+                        MessageBox.Show("The loop start point would be equal to or after the end point. This is invalid.");
+                        return;
+                    }
+
                     outputInfoBuilder.Append($"loop_start_sample = {loopStart}\n");
                     outputInfoBuilder.Append($"loop_end_sample = {loopEnd}\n");
                 }
