@@ -11,7 +11,7 @@
     <Authors>James Pelster</Authors>
     <Company />
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
