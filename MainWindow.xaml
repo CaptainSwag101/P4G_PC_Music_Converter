@@ -5,31 +5,35 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:P4G_PC_Music_Converter"
         mc:Ignorable="d"
-        Title="Persona 4 Golden PC Music Converter by CaptainSwag101" Height="320" Width="600" MinHeight="320" MinWidth="600">
+        Title="Persona 4 Golden PC Music Converter by CaptainSwag101" Height="340" Width="600" MinHeight="340" MinWidth="600">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0*"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Label Content="Input WAV file:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="26" Width="88"/>
-        <TextBox x:Name="InputWavPath" Margin="10,36,80,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="18"/>
-        <Button x:Name="BrowseInputFileButton" Content="Browse..." Margin="0,35,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="65" Click="BrowseInputFileButton_Click" Grid.Column="1" Height="20"/>
-        <Label Content="Output RAW file:" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="26" Width="98"/>
-        <TextBox x:Name="OutputRawPath" Margin="10,85,80,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="18"/>
-        <Button x:Name="BrowseOutputFileButton" Content="Browse..." Margin="0,84,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="65" Click="BrowseOutputFileButton_Click" Grid.Column="1" Height="20"/>
-        <GroupBox Header="Output File Info:" Margin="300,110,10,10" Grid.Column="1">
+        <Menu Grid.ColumnSpan="2" VerticalAlignment="Top" Height="24">
+            <MenuItem x:Name="AboutMenuItem" Header="About" Height="24" Click="AboutMenuItem_Click"/>
+        </Menu>
+        <Label Content="Input WAV file:" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="26" Width="88"/>
+        <TextBox x:Name="InputWavPath" Margin="10,51,80,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="18"/>
+        <Button x:Name="BrowseInputFileButton" Content="Browse..." Margin="0,50,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="65" Click="BrowseInputFileButton_Click" Grid.Column="1" Height="20"/>
+        <Label Content="Output RAW file:" HorizontalAlignment="Left" Margin="10,74,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="26" Width="98"/>
+        <TextBox x:Name="OutputRawPath" Margin="10,100,80,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="18"/>
+        <Button x:Name="BrowseOutputFileButton" Content="Browse..." Margin="0,99,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="65" Click="BrowseOutputFileButton_Click" Grid.Column="1" Height="20"/>
+        <GroupBox Header="Output File Info:" Margin="300,124,10,10" Grid.Column="1">
             <TextBlock x:Name="OutputFileInfo"/>
         </GroupBox>
-        <GroupBox Header="Loop Options:" Margin="10,110,0,40" HorizontalAlignment="Left" Width="285" Grid.ColumnSpan="2">
-            <StackPanel>
-                <CheckBox x:Name="LoopEnable" Content="Loop Enable" Checked="LoopEnable_Checked" Unchecked="LoopEnable_Unchecked"/>
-                <Label Content="Loop Start:"/>
-                <TextBox x:Name="LoopStart" TextWrapping="NoWrap" IsEnabled="False"/>
-                <Label Content="Loop End:"/>
-                <TextBox x:Name="LoopEnd" TextWrapping="NoWrap" IsEnabled="False"/>
-            </StackPanel>
+        <GroupBox Header="Song Options:" Margin="10,124,0,40" HorizontalAlignment="Left" Width="285" Grid.ColumnSpan="2">
+            <Grid>
+                <CheckBox x:Name="EncodingPassthrough" Content="Encoding Passthrough" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <CheckBox x:Name="LoopEnable" Content="Loop Enable" HorizontalAlignment="Left" Margin="0,26,0,0" VerticalAlignment="Top" Checked="LoopEnable_Checked" Unchecked="LoopEnable_Unchecked"/>
+                <Label Content="Loop Start:" HorizontalAlignment="Left" Margin="0,46,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="LoopStart" Margin="72,50,10,0" TextWrapping="Wrap" VerticalAlignment="Top" IsEnabled="False"/>
+                <Label Content="Loop End:" HorizontalAlignment="Left" Margin="0,72,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="LoopEnd" Margin="72,76,10,0" TextWrapping="Wrap" VerticalAlignment="Top" IsEnabled="False"/>
+
+            </Grid>
         </GroupBox>
         <Button x:Name="EncodeButton" Content="Encode" HorizontalAlignment="Left" Margin="10,0,0,10" Width="285" Height="25" VerticalAlignment="Bottom" Click="EncodeButton_Click" Grid.ColumnSpan="2"/>
-
     </Grid>
 </Window>

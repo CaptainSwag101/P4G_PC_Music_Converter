@@ -61,27 +61,37 @@ namespace P4G_PC_Music_Converter
                 }
             }
 
-            // Encode the input file using the MSADPCM tool
-            if (!File.Exists(AdpcmEncoderPath))
+            string encodedInputPath;
+            if (!EncodingPassthrough.IsChecked.Value)
             {
-                MessageBox.Show($"Unable to find MSADPCM encoder tool! It should be located in {AdpcmEncoderPath}");
-                return;
+                encodedInputPath = OutputRawPath.Text;
+
+                // Encode the input file using the MSADPCM tool
+                if (!File.Exists(AdpcmEncoderPath))
+                {
+                    MessageBox.Show($"Unable to find MSADPCM encoder tool! It should be located in {AdpcmEncoderPath}");
+                    return;
+                }
+
+                ProcessStartInfo startInfo = new ProcessStartInfo(AdpcmEncoderPath, $"\"{InputWavPath.Text}\" \"{OutputRawPath.Text}\"");
+                var encodeProcess = Process.Start(startInfo);
+                encodeProcess.WaitForExit();
+                int exit = encodeProcess.ExitCode;
+
+                if (exit != 0)
+                {
+                    MessageBox.Show($"The MSADPCM encoder tool exited with code {exit}. This indicates an error. Aborting...");
+                    return;
+                }
             }
-
-            ProcessStartInfo startInfo = new ProcessStartInfo(AdpcmEncoderPath, $"\"{InputWavPath.Text}\" \"{OutputRawPath.Text}\"");
-            var encodeProcess = Process.Start(startInfo);
-            encodeProcess.WaitForExit();
-            int exit = encodeProcess.ExitCode;
-
-            if (exit != 0)
+            else
             {
-                MessageBox.Show($"The MSADPCM encoder tool exited with code {exit}. This indicates an error. Aborting...");
-                return;
+                encodedInputPath = InputWavPath.Text;
             }
 
             // Read the input file and determine/verify its info (sample count, etc.)
             byte[] dataSegment;
-            using (WaveFileReader waveReader = new WaveFileReader(OutputRawPath.Text))
+            using (WaveFileReader waveReader = new WaveFileReader(encodedInputPath))
             {
                 // Store the data segment (what ends up in the final RAW file) in a byte array temporarily
                 dataSegment = new byte[waveReader.Length];
@@ -98,10 +108,32 @@ namespace P4G_PC_Music_Converter
                 }
 
                 outputInfoBuilder.Append($"num_samples = {sampleCount}\n");
-                outputInfoBuilder.Append($"codec = MSADPCM\n");
+
+                string encodingString;
+                if (waveReader.WaveFormat.Encoding.ToString().ToUpperInvariant() == "ADPCM")
+                {
+                    encodingString = "MSADPCM";
+                }
+                else
+                {
+                    encodingString = waveReader.WaveFormat.Encoding.ToString().ToUpperInvariant() + waveReader.WaveFormat.BitsPerSample.ToString();
+                    if (waveReader.WaveFormat.BitsPerSample == 16)
+                    {
+                        encodingString += "LE";
+                    }
+
+                    if (waveReader.WaveFormat.BitsPerSample > 16)
+                    {
+                        MessageBox.Show($"The provided input file uses an unsupported codec: {encodingString}");
+                        return;
+                    }
+                }
+                outputInfoBuilder.Append($"codec = {encodingString}\n");
+
                 outputInfoBuilder.Append($"channels = {waveReader.WaveFormat.Channels}\n");
                 outputInfoBuilder.Append($"sample_rate = {waveReader.WaveFormat.SampleRate}\n");
                 outputInfoBuilder.Append($"interleave = {waveReader.WaveFormat.BlockAlign}\n");
+
 
                 // Verify and adjust the loop points if needed, to conform to block sample alignment
                 if (LoopEnable.IsChecked.Value)
@@ -232,6 +264,12 @@ namespace P4G_PC_Music_Converter
         {
             LoopStart.IsEnabled = false;
             LoopEnd.IsEnabled = false;
+        }
+
+        private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            AboutWindow about = new AboutWindow();
+            about.ShowDialog();
         }
     }
 }
