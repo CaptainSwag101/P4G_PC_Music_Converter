@@ -21,7 +21,7 @@ namespace P4G_PC_Music_Converter
             InitializeComponent();
         }
 
-        private void EncodeButton_Click(object sender, RoutedEventArgs e)
+        private void ConvertButton_Click(object sender, RoutedEventArgs e)
         {
             // Check to ensure all the necessary fields are filled out before we proceed
             bool fieldsPopulated = !string.IsNullOrWhiteSpace(InputWavPath.Text) &&
@@ -114,7 +114,7 @@ namespace P4G_PC_Music_Converter
                 {
                     encodingString = "MSADPCM";
                 }
-                else
+                else if (waveReader.WaveFormat.Encoding.ToString().ToUpperInvariant() == "PCM")
                 {
                     encodingString = waveReader.WaveFormat.Encoding.ToString().ToUpperInvariant() + waveReader.WaveFormat.BitsPerSample.ToString();
                     if (waveReader.WaveFormat.BitsPerSample == 16)
@@ -124,9 +124,14 @@ namespace P4G_PC_Music_Converter
 
                     if (waveReader.WaveFormat.BitsPerSample > 16)
                     {
-                        MessageBox.Show($"The provided input file uses an unsupported codec: {encodingString}");
+                        MessageBox.Show($"The provided input file uses an unsupported PCM encoding: {encodingString}");
                         return;
                     }
+                }
+                else
+                {
+                    MessageBox.Show($"The provided input file uses an unsupported codec: {waveReader.WaveFormat.Encoding.ToString().ToUpperInvariant()}");
+                    return;
                 }
                 outputInfoBuilder.Append($"codec = {encodingString}\n");
 
@@ -142,7 +147,7 @@ namespace P4G_PC_Music_Converter
 
                     int loopStart = int.Parse(LoopStart.Text);
                     //loopStart = (loopStart % samplesPerBlock) != 0 ? (loopStart + samplesPerBlock - (loopStart % samplesPerBlock)) : loopStart;
-                    if (loopStart % samplesPerBlock != 0)
+                    if (loopStart % samplesPerBlock != 0 && !EncodingPassthrough.IsChecked.Value)
                     {
                         switch (MessageBox.Show($"The provided loop start point is not aligned to {samplesPerBlock} samples per block, would you like to adjust the loop point?",
                             string.Empty, MessageBoxButton.YesNoCancel))
@@ -172,7 +177,7 @@ namespace P4G_PC_Music_Converter
 
                     int loopEnd = int.Parse(LoopEnd.Text);
                     //loopEnd = (loopEnd % samplesPerBlock) != 0 ? (loopEnd + samplesPerBlock - (loopEnd % samplesPerBlock)) : loopEnd;
-                    if (loopEnd % samplesPerBlock != 0)
+                    if (loopEnd % samplesPerBlock != 0 && !EncodingPassthrough.IsChecked.Value)
                     {
                         switch (MessageBox.Show($"The provided loop end point is not aligned to {samplesPerBlock} samples per block, would you like to adjust the loop point?",
                             string.Empty, MessageBoxButton.YesNoCancel))
